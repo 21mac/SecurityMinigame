@@ -10,24 +10,23 @@ const BuildingMap = ({
   onRemoveDevice 
 }) => {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
   const { width, height, windows, doors } = config;
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    canvas.width = width;
+    canvas.height = height;
     
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
     
-    // Set high DPI for crisp rendering
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = width + 'px';
-    canvas.style.height = height + 'px';
-    ctx.scale(dpr, dpr);
-    
-    // Background
+    // Background with gradient
     const gradient = ctx.createLinearGradient(0, 0, width, height);
     gradient.addColorStop(0, '#f1f5f9');
     gradient.addColorStop(1, '#e2e8f0');
@@ -77,7 +76,7 @@ const BuildingMap = ({
     
     // Room labels
     ctx.fillStyle = '#374151';
-    ctx.font = 'bold 24px Arial';
+    ctx.font = 'bold 28px Arial';
     ctx.textAlign = 'center';
     
     ctx.fillText('Executive Office', 225, 250);
@@ -92,15 +91,15 @@ const BuildingMap = ({
     windows.forEach((window) => {
       ctx.fillStyle = '#3b82f6';
       ctx.strokeStyle = '#1e40af';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 4;
       ctx.fillRect(window.x, window.y, window.width, window.height);
       ctx.strokeRect(window.x, window.y, window.width, window.height);
       
       // Window labels
-      ctx.fillStyle = '#1e40af';
-      ctx.font = 'bold 14px Arial';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px Arial';
       const labelX = window.x + window.width / 2;
-      const labelY = window.y + window.height / 2 + 5;
+      const labelY = window.y + window.height / 2 + 6;
       ctx.fillText(window.id.replace('_', ' ').toUpperCase(), labelX, labelY);
     });
     
@@ -108,13 +107,13 @@ const BuildingMap = ({
     doors.forEach((door) => {
       ctx.fillStyle = '#8b5cf6';
       ctx.strokeStyle = '#6d28d9';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 4;
       ctx.fillRect(door.x, door.y, door.width, door.height);
       ctx.strokeRect(door.x, door.y, door.width, door.height);
       
       // Door labels
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 16px Arial';
+      ctx.font = 'bold 18px Arial';
       const labelX = door.x + door.width / 2;
       const labelY = door.y + door.height / 2 + 6;
       ctx.fillText('DOOR', labelX, labelY);
@@ -122,9 +121,10 @@ const BuildingMap = ({
     
     // Door name labels
     ctx.fillStyle = '#6d28d9';
-    ctx.font = 'bold 16px Arial';
+    ctx.font = 'bold 18px Arial';
     ctx.fillText('Main Entrance', 810, height - 20);
     
+    // Add other door labels with proper positioning
     ctx.save();
     ctx.translate(350, 460);
     ctx.rotate(-Math.PI / 2);
@@ -150,31 +150,23 @@ const BuildingMap = ({
     ctx.restore();
     
     ctx.save();
-    ctx.translate(1540, 490);
+    ctx.translate(1570, 490);
     ctx.rotate(-Math.PI / 2);
     ctx.fillText('Side Exit', 0, 0);
     ctx.restore();
     
-    // Window labels
-    ctx.fillStyle = '#1e40af';
-    ctx.font = 'bold 12px Arial';
-    ctx.fillText('WINDOW 1', 125, 190);
-    ctx.fillText('WINDOW 2', 1475, 190);
-    ctx.fillText('WINDOW 3', 590, 40);
-    ctx.fillText('WINDOW 4', 990, 40);
-    ctx.fillText('WINDOW 5', 125, 690);
-    ctx.fillText('WINDOW 6', 1475, 690);
-    ctx.fillText('WINDOW 7', 290, 40);
-    ctx.fillText('WINDOW 8', 1290, 40);
-    
-  }, [config]);
+  }, [config, width, height, windows, doors]);
 
   return (
-    <div className="relative bg-slate-100 rounded-xl overflow-hidden shadow-2xl">
+    <div ref={containerRef} className="relative bg-slate-100 rounded-xl overflow-auto shadow-2xl">
       <canvas
         ref={canvasRef}
-        className="block w-full h-auto"
-        style={{ maxWidth: '100%', height: 'auto' }}
+        className="block"
+        style={{ 
+          width: `${width}px`, 
+          height: `${height}px`,
+          maxWidth: 'none'
+        }}
       />
 
       {/* Drop zones overlay */}
@@ -191,14 +183,17 @@ const BuildingMap = ({
       ))}
 
       {/* Legend */}
-      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 text-sm space-y-2">
+      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 text-sm space-y-2 z-10">
         <div className="flex items-center space-x-2">
           <div className="w-5 h-5 bg-blue-500 rounded"></div>
-          <span className="text-slate-700">Windows</span>
+          <span className="text-slate-700">Windows ({windows.length})</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-5 h-5 bg-purple-500 rounded"></div>
-          <span className="text-slate-700">Doors</span>
+          <span className="text-slate-700">Doors ({doors.length})</span>
+        </div>
+        <div className="text-xs text-slate-600">
+          Building: {width} x {height}px
         </div>
       </div>
     </div>
