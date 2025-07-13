@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import DropZone from './DropZone';
 
 const BuildingMap = ({ 
@@ -9,181 +9,116 @@ const BuildingMap = ({
   onDrop, 
   onRemoveDevice 
 }) => {
-  const canvasRef = useRef(null);
-  const containerRef = useRef(null);
   const { width, height, windows, doors } = config;
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    // Set canvas size
-    canvas.width = width;
-    canvas.height = height;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    // Background with gradient
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, '#f1f5f9');
-    gradient.addColorStop(1, '#e2e8f0');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
-    
-    // Building outline
-    ctx.strokeStyle = '#475569';
-    ctx.lineWidth = 6;
-    ctx.fillStyle = '#f8fafc';
-    ctx.fillRect(50, 50, width - 100, height - 100);
-    ctx.strokeRect(50, 50, width - 100, height - 100);
-    
-    // Internal walls creating rooms
-    ctx.strokeStyle = '#64748b';
-    ctx.lineWidth = 4;
-    
-    // Horizontal walls
-    ctx.beginPath();
-    ctx.moveTo(50, 400);
-    ctx.lineTo(370, 400);
-    ctx.moveTo(420, 400);
-    ctx.lineTo(1180, 400);
-    ctx.moveTo(1230, 400);
-    ctx.lineTo(width - 50, 400);
-    
-    ctx.moveTo(50, 600);
-    ctx.lineTo(width - 50, 600);
-    
-    // Vertical walls
-    ctx.moveTo(400, 50);
-    ctx.lineTo(400, 400);
-    ctx.moveTo(1200, 50);
-    ctx.lineTo(1200, 400);
-    ctx.moveTo(800, 250);
-    ctx.lineTo(800, 400);
-    
-    ctx.stroke();
-    
-    // Bottom wall with main entrance opening
-    ctx.beginPath();
-    ctx.moveTo(50, height - 50);
-    ctx.lineTo(740, height - 50);
-    ctx.moveTo(880, height - 50);
-    ctx.lineTo(width - 50, height - 50);
-    ctx.stroke();
-    
-    // Room labels
-    ctx.fillStyle = '#374151';
-    ctx.font = 'bold 28px Arial';
-    ctx.textAlign = 'center';
-    
-    ctx.fillText('Executive Office', 225, 250);
-    ctx.fillText('Reception', 600, 180);
-    ctx.fillText('Lobby', 1000, 180);
-    ctx.fillText('Server Room', 1350, 250);
-    ctx.fillText('Conference Room', 600, 500);
-    ctx.fillText('Meeting Room', 1000, 500);
-    ctx.fillText('Main Hall', 800, 800);
-    
-    // Windows
-    windows.forEach((window) => {
-      ctx.fillStyle = '#3b82f6';
-      ctx.strokeStyle = '#1e40af';
-      ctx.lineWidth = 4;
-      ctx.fillRect(window.x, window.y, window.width, window.height);
-      ctx.strokeRect(window.x, window.y, window.width, window.height);
-      
-      // Window labels
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 16px Arial';
-      const labelX = window.x + window.width / 2;
-      const labelY = window.y + window.height / 2 + 6;
-      ctx.fillText(window.id.replace('_', ' ').toUpperCase(), labelX, labelY);
-    });
-    
-    // Doors
-    doors.forEach((door) => {
-      ctx.fillStyle = '#8b5cf6';
-      ctx.strokeStyle = '#6d28d9';
-      ctx.lineWidth = 4;
-      ctx.fillRect(door.x, door.y, door.width, door.height);
-      ctx.strokeRect(door.x, door.y, door.width, door.height);
-      
-      // Door labels
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px Arial';
-      const labelX = door.x + door.width / 2;
-      const labelY = door.y + door.height / 2 + 6;
-      ctx.fillText('DOOR', labelX, labelY);
-    });
-    
-    // Door name labels
-    ctx.fillStyle = '#6d28d9';
-    ctx.font = 'bold 18px Arial';
-    ctx.fillText('Main Entrance', 810, height - 20);
-    
-    // Add other door labels with proper positioning
-    ctx.save();
-    ctx.translate(350, 460);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Executive', 0, 0);
-    ctx.restore();
-    
-    ctx.save();
-    ctx.translate(770, 360);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Conference', 0, 0);
-    ctx.restore();
-    
-    ctx.save();
-    ctx.translate(1160, 460);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Server Room', 0, 0);
-    ctx.restore();
-    
-    ctx.save();
-    ctx.translate(30, 850);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Emergency', 0, 0);
-    ctx.restore();
-    
-    ctx.save();
-    ctx.translate(1570, 490);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Side Exit', 0, 0);
-    ctx.restore();
-    
-  }, [config, width, height, windows, doors]);
-
   return (
-    <div ref={containerRef} className="relative bg-slate-100 rounded-xl overflow-auto shadow-2xl">
-      <canvas
-        ref={canvasRef}
-        className="block"
+    <div className="relative bg-gradient-to-br from-slate-200 to-slate-300 rounded-xl overflow-auto shadow-2xl border-4 border-slate-400">
+      <div 
+        className="relative bg-slate-50"
         style={{ 
           width: `${width}px`, 
           height: `${height}px`,
-          maxWidth: 'none'
+          minWidth: `${width}px`,
+          minHeight: `${height}px`
         }}
-      />
+      >
+        {/* Building outline */}
+        <div 
+          className="absolute bg-slate-100 border-4 border-slate-600 rounded-lg"
+          style={{
+            left: '50px',
+            top: '50px',
+            width: `${width - 100}px`,
+            height: `${height - 100}px`
+          }}
+        >
+          {/* Room dividers */}
+          {/* Horizontal walls */}
+          <div className="absolute bg-slate-600 h-1" style={{ left: '0px', top: '350px', width: '320px' }}></div>
+          <div className="absolute bg-slate-600 h-1" style={{ left: '370px', top: '350px', width: '760px' }}></div>
+          <div className="absolute bg-slate-600 h-1" style={{ left: '1180px', top: '350px', width: '370px' }}></div>
+          
+          <div className="absolute bg-slate-600 h-1" style={{ left: '0px', top: '550px', width: `${width - 100}px` }}></div>
+          
+          {/* Vertical walls */}
+          <div className="absolute bg-slate-600 w-1" style={{ left: '350px', top: '0px', height: '350px' }}></div>
+          <div className="absolute bg-slate-600 w-1" style={{ left: '1150px', top: '0px', height: '350px' }}></div>
+          <div className="absolute bg-slate-600 w-1" style={{ left: '750px', top: '200px', height: '150px' }}></div>
 
-      {/* Drop zones overlay */}
-      {[...windows, ...doors].map((location) => (
-        <DropZone
-          key={location.id}
-          location={location}
-          placedDevices={placedDevices[location.id] || []}
-          showDropZone={showDropZones}
-          draggedDevice={draggedDevice}
-          onDrop={onDrop}
-          onRemoveDevice={onRemoveDevice}
-        />
-      ))}
+          {/* Room labels */}
+          <div className="absolute text-slate-700 font-bold text-2xl" style={{ left: '125px', top: '200px' }}>
+            Executive Office
+          </div>
+          <div className="absolute text-slate-700 font-bold text-2xl" style={{ left: '500px', top: '130px' }}>
+            Reception
+          </div>
+          <div className="absolute text-slate-700 font-bold text-2xl" style={{ left: '900px', top: '130px' }}>
+            Lobby
+          </div>
+          <div className="absolute text-slate-700 font-bold text-2xl" style={{ left: '1200px', top: '200px' }}>
+            Server Room
+          </div>
+          <div className="absolute text-slate-700 font-bold text-2xl" style={{ left: '450px', top: '450px' }}>
+            Conference Room
+          </div>
+          <div className="absolute text-slate-700 font-bold text-2xl" style={{ left: '850px', top: '450px' }}>
+            Meeting Room
+          </div>
+          <div className="absolute text-slate-700 font-bold text-3xl" style={{ left: '650px', top: '750px' }}>
+            Main Hall
+          </div>
+        </div>
+
+        {/* Windows */}
+        {windows.map((window) => (
+          <div
+            key={window.id}
+            className="absolute bg-blue-500 border-2 border-blue-700 rounded flex items-center justify-center"
+            style={{
+              left: `${window.x}px`,
+              top: `${window.y}px`,
+              width: `${window.width}px`,
+              height: `${window.height}px`
+            }}
+          >
+            <span className="text-white font-bold text-sm">
+              {window.id.replace('_', ' ').toUpperCase()}
+            </span>
+          </div>
+        ))}
+
+        {/* Doors */}
+        {doors.map((door) => (
+          <div
+            key={door.id}
+            className="absolute bg-purple-500 border-2 border-purple-700 rounded flex items-center justify-center"
+            style={{
+              left: `${door.x}px`,
+              top: `${door.y}px`,
+              width: `${door.width}px`,
+              height: `${door.height}px`
+            }}
+          >
+            <span className="text-white font-bold text-sm">DOOR</span>
+          </div>
+        ))}
+
+        {/* Drop zones overlay */}
+        {[...windows, ...doors].map((location) => (
+          <DropZone
+            key={location.id}
+            location={location}
+            placedDevices={placedDevices[location.id] || []}
+            showDropZone={showDropZones}
+            draggedDevice={draggedDevice}
+            onDrop={onDrop}
+            onRemoveDevice={onRemoveDevice}
+          />
+        ))}
+      </div>
 
       {/* Legend */}
-      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 text-sm space-y-2 z-10">
+      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg p-4 text-sm space-y-2 z-20 shadow-lg">
         <div className="flex items-center space-x-2">
           <div className="w-5 h-5 bg-blue-500 rounded"></div>
           <span className="text-slate-700">Windows ({windows.length})</span>
@@ -192,7 +127,7 @@ const BuildingMap = ({
           <div className="w-5 h-5 bg-purple-500 rounded"></div>
           <span className="text-slate-700">Doors ({doors.length})</span>
         </div>
-        <div className="text-xs text-slate-600">
+        <div className="text-xs text-slate-600 border-t pt-2">
           Building: {width} x {height}px
         </div>
       </div>
