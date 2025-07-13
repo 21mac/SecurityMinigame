@@ -45,25 +45,25 @@ export const BUILDING_CONFIG = {
     {
       id: "main_door",
       x: 350,
-      y: 580,
+      y: 550,
       width: 100,
       height: 20,
       allowedDevices: ["door_lock", "fingerprint_sensor", "facial_recognition", "security_camera"]
     },
     {
       id: "office_door_1",
-      x: 200,
-      y: 250,
-      width: 15,
-      height: 60,
+      x: 190,
+      y: 210,
+      width: 20,
+      height: 40,
       allowedDevices: ["door_lock", "fingerprint_sensor", "facial_recognition"]
     },
     {
       id: "office_door_2",
-      x: 585,
-      y: 250,
-      width: 15,
-      height: 60,
+      x: 590,
+      y: 210,
+      width: 20,
+      height: 40,
       allowedDevices: ["door_lock", "fingerprint_sensor", "facial_recognition"]
     }
   ]
