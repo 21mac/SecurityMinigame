@@ -179,9 +179,9 @@ const GameBoard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-      <div className="max-w-[1800px] mx-auto">
-        <div className="text-center mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-2">
+      <div className="max-w-none mx-auto">
+        <div className="text-center mb-4">
           <h1 className="text-4xl font-bold text-white mb-2">
             Security System Placement Game
           </h1>
@@ -193,10 +193,10 @@ const GameBoard = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
           {/* Main Game Area - Much Larger */}
           <div className="xl:col-span-9">
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-2 border border-white/10">
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-1 border border-white/10 overflow-auto">
               <BuildingMap 
                 config={BUILDING_CONFIG}
                 placedDevices={placedDevices}
