@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { BUILDING_CONFIG, SECURITY_DEVICES, OPTIMAL_PLACEMENT } from '../data/mock';
+import { BUILDING_CONFIG, SECURITY_DEVICES, MISSIONS } from '../data/mock';
 import DeviceInventory from './DeviceInventory';
 import DropZone from './DropZone';
 import BuildingMap from './BuildingMap';
+import MissionSystem from './MissionSystem';
 import { useToast } from '../hooks/use-toast';
 
 const GameBoard = () => {
   const [draggedDevice, setDraggedDevice] = useState(null);
   const [placedDevices, setPlacedDevices] = useState({});
+  const [currentMission, setCurrentMission] = useState(null);
   const [deviceInventory, setDeviceInventory] = useState(
     SECURITY_DEVICES.reduce((acc, device) => {
       acc[device.id] = device.count;
@@ -51,6 +53,19 @@ const GameBoard = () => {
       return;
     }
 
+    // Check mission device limits
+    if (currentMission?.deviceLimits?.total) {
+      const totalPlaced = Object.values(placedDevices).flat().length;
+      if (totalPlaced >= currentMission.deviceLimits.total) {
+        toast({
+          title: "Device Limit Exceeded",
+          description: `Mission allows only ${currentMission.deviceLimits.total} devices total.`,
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     // Place device
     setPlacedDevices(prev => ({
       ...prev,
@@ -92,32 +107,71 @@ const GameBoard = () => {
     });
   };
 
+  const handleMissionSelect = (mission) => {
+    setCurrentMission(mission);
+    // Reset inventory based on mission requirements or use default
+    const missionInventory = { ...SECURITY_DEVICES.reduce((acc, device) => {
+      acc[device.id] = device.count;
+      return acc;
+    }, {}) };
+    
+    setDeviceInventory(missionInventory);
+    setPlacedDevices({});
+    
+    toast({
+      title: "Mission Started",
+      description: `${mission.title} - ${mission.difficulty} difficulty`,
+    });
+  };
+
+  const handleMissionComplete = (success, message) => {
+    toast({
+      title: success ? "Mission Complete!" : "Mission Failed",
+      description: message,
+      variant: success ? "default" : "destructive"
+    });
+    
+    if (success) {
+      // Could add rewards, points, etc.
+      setTimeout(() => {
+        setCurrentMission(null);
+        setPlacedDevices({});
+        setDeviceInventory(SECURITY_DEVICES.reduce((acc, device) => {
+          acc[device.id] = device.count;
+          return acc;
+        }, {}));
+      }, 3000);
+    }
+  };
+
   const checkValidation = () => {
+    if (currentMission) {
+      // Mission validation is handled by MissionSystem component
+      return;
+    }
+
+    // Default validation for free play
     let isComplete = true;
     let missingDevices = [];
 
-    Object.entries(OPTIMAL_PLACEMENT).forEach(([locationId, requiredDevices]) => {
-      const placedAtLocation = placedDevices[locationId] || [];
-      const placedDeviceIds = placedAtLocation.map(device => device.id);
-      
-      requiredDevices.forEach(requiredDeviceId => {
-        if (!placedDeviceIds.includes(requiredDeviceId)) {
-          isComplete = false;
-          const deviceName = SECURITY_DEVICES.find(d => d.id === requiredDeviceId)?.name;
-          missingDevices.push(`${deviceName} at ${locationId.replace('_', ' ')}`);
-        }
-      });
+    // Simple check - at least one device per door
+    BUILDING_CONFIG.doors.forEach(door => {
+      const placedAtLocation = placedDevices[door.id] || [];
+      if (placedAtLocation.length === 0) {
+        isComplete = false;
+        missingDevices.push(`Any device at ${door.id.replace('_', ' ')}`);
+      }
     });
 
     if (isComplete) {
       toast({
-        title: "🎉 Congratulations!",
-        description: "All security devices have been placed correctly!",
+        title: "🎉 Excellent Setup!",
+        description: "All doors are secured with devices!",
         variant: "default"
       });
     } else {
       toast({
-        title: "Incomplete Setup",
+        title: "Setup Incomplete",
         description: `Missing: ${missingDevices.slice(0, 3).join(', ')}${missingDevices.length > 3 ? '...' : ''}`,
         variant: "destructive"
       });
@@ -125,34 +179,47 @@ const GameBoard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+      <div className="max-w-[1800px] mx-auto">
+        <div className="text-center mb-6">
           <h1 className="text-4xl font-bold text-white mb-2">
             Security System Placement Game
           </h1>
           <p className="text-slate-300 text-lg">
-            Drag and drop security devices onto windows and doors to secure the building
+            {currentMission 
+              ? `Mission: ${currentMission.title}` 
+              : "Drag and drop security devices onto windows and doors to secure the building"
+            }
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-              <div className="relative">
-                <BuildingMap 
-                  config={BUILDING_CONFIG}
-                  placedDevices={placedDevices}
-                  showDropZones={showDropZones}
-                  draggedDevice={draggedDevice}
-                  onDrop={handleDrop}
-                  onRemoveDevice={handleRemoveDevice}
-                />
-              </div>
+        <div className="grid grid-cols-1 xl:grid-cols-6 gap-6">
+          {/* Main Game Area - Larger */}
+          <div className="xl:col-span-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+              <BuildingMap 
+                config={BUILDING_CONFIG}
+                placedDevices={placedDevices}
+                showDropZones={showDropZones}
+                draggedDevice={draggedDevice}
+                onDrop={handleDrop}
+                onRemoveDevice={handleRemoveDevice}
+              />
             </div>
           </div>
 
-          <div className="space-y-6">
+          {/* Sidebar */}
+          <div className="xl:col-span-2 space-y-6">
+            {/* Mission System */}
+            <MissionSystem
+              currentMission={currentMission}
+              onMissionSelect={handleMissionSelect}
+              placedDevices={placedDevices}
+              deviceInventory={deviceInventory}
+              onMissionComplete={handleMissionComplete}
+            />
+            
+            {/* Device Inventory */}
             <DeviceInventory
               devices={SECURITY_DEVICES}
               inventory={deviceInventory}
@@ -160,14 +227,17 @@ const GameBoard = () => {
               onDragEnd={handleDragEnd}
             />
             
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-              <button
-                onClick={checkValidation}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                Validate Setup
-              </button>
-            </div>
+            {/* Validation Button */}
+            {!currentMission && (
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <button
+                  onClick={checkValidation}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  Validate Setup
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
