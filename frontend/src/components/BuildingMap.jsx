@@ -14,7 +14,7 @@ const BuildingMap = ({
   return (
     <div className="relative bg-slate-100 rounded-xl overflow-hidden shadow-2xl">
       <svg width={width} height={height} className="block">
-        {/* Building outline */}
+        {/* Building outline - but with gaps for doors */}
         <rect
           x="50"
           y="50"
@@ -24,36 +24,22 @@ const BuildingMap = ({
           stroke="#475569"
           strokeWidth="3"
           rx="8"
+          fillOpacity="0.7"
         />
 
-        {/* Internal walls */}
-        {/* Horizontal wall */}
-        <line
-          x1="50"
-          y1="200"
-          x2={width - 50}
-          y2="200"
-          stroke="#64748B"
-          strokeWidth="2"
-        />
+        {/* Internal walls with door openings */}
+        {/* Horizontal wall with door openings */}
+        <line x1="50" y1="200" x2="190" y2="200" stroke="#64748B" strokeWidth="3"/>
+        <line x1="220" y1="200" x2="575" y2="200" stroke="#64748B" strokeWidth="3"/>
+        <line x1="605" y1="200" x2={width - 50} y2="200" stroke="#64748B" strokeWidth="3"/>
         
         {/* Vertical walls */}
-        <line
-          x1="200"
-          y1="50"
-          x2="200"
-          y2="200"
-          stroke="#64748B"
-          strokeWidth="2"
-        />
-        <line
-          x1="600"
-          y1="50"
-          x2="600"
-          y2="200"
-          stroke="#64748B"
-          strokeWidth="2"
-        />
+        <line x1="200" y1="50" x2="200" y2="200" stroke="#64748B" strokeWidth="3"/>
+        <line x1="600" y1="50" x2="600" y2="200" stroke="#64748B" strokeWidth="3"/>
+
+        {/* Bottom wall with main door opening */}
+        <line x1="50" y1={height - 50} x2="340" y2={height - 50} stroke="#475569" strokeWidth="3"/>
+        <line x1="460" y1={height - 50} x2={width - 50} y2={height - 50} stroke="#475569" strokeWidth="3"/>
 
         {/* Room labels */}
         <text x="125" y="135" className="fill-slate-600 text-sm font-semibold">Office 1</text>
@@ -71,25 +57,39 @@ const BuildingMap = ({
             height={window.height}
             fill="#3B82F6"
             stroke="#1E40AF"
-            strokeWidth="2"
+            strokeWidth="3"
             rx="2"
           />
         ))}
 
-        {/* Doors */}
+        {/* Doors - make them more prominent */}
         {doors.map((door) => (
-          <rect
-            key={door.id}
-            x={door.x}
-            y={door.y}
-            width={door.width}
-            height={door.height}
-            fill="#8B5CF6"
-            stroke="#6D28D9"
-            strokeWidth="2"
-            rx="4"
-          />
+          <g key={door.id}>
+            <rect
+              x={door.x}
+              y={door.y}
+              width={door.width}
+              height={door.height}
+              fill="#8B5CF6"
+              stroke="#6D28D9"
+              strokeWidth="3"
+              rx="4"
+            />
+            <text
+              x={door.x + door.width/2}
+              y={door.y + door.height/2 + 4}
+              className="fill-white text-xs font-bold"
+              textAnchor="middle"
+            >
+              DOOR
+            </text>
+          </g>
         ))}
+
+        {/* Add door labels */}
+        <text x="400" y={height - 25} className="fill-purple-700 text-xs font-bold" textAnchor="middle">Main Entrance</text>
+        <text x="180" y="280" className="fill-purple-700 text-xs font-bold" textAnchor="middle" transform="rotate(-90 180 280)">Office 1</text>
+        <text x="620" y="280" className="fill-purple-700 text-xs font-bold" textAnchor="middle" transform="rotate(-90 620 280)">Office 2</text>
       </svg>
 
       {/* Drop zones overlay */}
