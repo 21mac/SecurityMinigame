@@ -28,12 +28,14 @@ const DropZone = ({
   return (
     <div
       className={`
-        absolute border-2 rounded transition-all duration-300
+        absolute border-4 rounded-lg transition-all duration-300 z-10
         ${showDropZone && isValidDrop 
-          ? 'border-green-400 bg-green-200/50 shadow-lg shadow-green-400/50' 
+          ? 'border-green-400 bg-green-200/70 shadow-lg shadow-green-400/50 animate-pulse' 
           : showDropZone && draggedDevice
-          ? 'border-red-400 bg-red-200/30'
-          : 'border-transparent'
+          ? 'border-red-400 bg-red-200/50 shadow-lg shadow-red-400/50'
+          : placedDevices.length > 0
+          ? 'border-blue-400/50 bg-blue-100/30'
+          : 'border-transparent hover:border-gray-400/30'
         }
       `}
       style={{
@@ -49,13 +51,13 @@ const DropZone = ({
       {showDropZone && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className={`
-            text-xs font-bold px-2 py-1 rounded
+            text-lg font-bold px-3 py-1 rounded-full shadow-lg
             ${isValidDrop 
-              ? 'bg-green-500 text-white' 
+              ? 'bg-green-500 text-white animate-bounce' 
               : 'bg-red-500 text-white'
             }
           `}>
-            {isValidDrop ? '✓' : '✗'}
+            {isValidDrop ? '✓ DROP HERE' : '✗ INVALID'}
           </div>
         </div>
       )}
@@ -67,22 +69,24 @@ const DropZone = ({
             <div
               key={index}
               onClick={() => handleDeviceClick(index)}
-              className="cursor-pointer hover:scale-110 transition-transform duration-200 bg-white/90 rounded-full p-1 shadow-md border-2"
+              className="cursor-pointer hover:scale-125 transition-all duration-200 bg-white/95 rounded-full p-2 shadow-lg border-3 hover:shadow-xl"
               style={{ borderColor: device.color }}
               title={`${device.name} (Click to remove)`}
             >
-              <span className="text-sm">{device.icon}</span>
+              <span className="text-lg">{device.icon}</span>
             </div>
           ))}
         </div>
       )}
 
-      {/* Location label on hover */}
-      <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 opacity-0 hover:opacity-100 transition-opacity duration-200">
-        <div className="bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-          {location.id.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+      {/* Location label - always visible when empty */}
+      {placedDevices.length === 0 && !showDropZone && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="bg-slate-700/80 text-white text-xs px-2 py-1 rounded-md font-medium">
+            {location.id.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
