@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import DropZone from './DropZone';
 
 const BuildingMap = ({ 
@@ -9,104 +9,173 @@ const BuildingMap = ({
   onDrop, 
   onRemoveDevice 
 }) => {
+  const canvasRef = useRef(null);
   const { width, height, windows, doors } = config;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+    
+    // Set high DPI for crisp rendering
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.scale(dpr, dpr);
+    
+    // Background
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, '#f1f5f9');
+    gradient.addColorStop(1, '#e2e8f0');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    
+    // Building outline
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 6;
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(50, 50, width - 100, height - 100);
+    ctx.strokeRect(50, 50, width - 100, height - 100);
+    
+    // Internal walls creating rooms
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 4;
+    
+    // Horizontal walls
+    ctx.beginPath();
+    ctx.moveTo(50, 400);
+    ctx.lineTo(370, 400);
+    ctx.moveTo(420, 400);
+    ctx.lineTo(1180, 400);
+    ctx.moveTo(1230, 400);
+    ctx.lineTo(width - 50, 400);
+    
+    ctx.moveTo(50, 600);
+    ctx.lineTo(width - 50, 600);
+    
+    // Vertical walls
+    ctx.moveTo(400, 50);
+    ctx.lineTo(400, 400);
+    ctx.moveTo(1200, 50);
+    ctx.lineTo(1200, 400);
+    ctx.moveTo(800, 250);
+    ctx.lineTo(800, 400);
+    
+    ctx.stroke();
+    
+    // Bottom wall with main entrance opening
+    ctx.beginPath();
+    ctx.moveTo(50, height - 50);
+    ctx.lineTo(740, height - 50);
+    ctx.moveTo(880, height - 50);
+    ctx.lineTo(width - 50, height - 50);
+    ctx.stroke();
+    
+    // Room labels
+    ctx.fillStyle = '#374151';
+    ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'center';
+    
+    ctx.fillText('Executive Office', 225, 250);
+    ctx.fillText('Reception', 600, 180);
+    ctx.fillText('Lobby', 1000, 180);
+    ctx.fillText('Server Room', 1350, 250);
+    ctx.fillText('Conference Room', 600, 500);
+    ctx.fillText('Meeting Room', 1000, 500);
+    ctx.fillText('Main Hall', 800, 800);
+    
+    // Windows
+    windows.forEach((window) => {
+      ctx.fillStyle = '#3b82f6';
+      ctx.strokeStyle = '#1e40af';
+      ctx.lineWidth = 3;
+      ctx.fillRect(window.x, window.y, window.width, window.height);
+      ctx.strokeRect(window.x, window.y, window.width, window.height);
+      
+      // Window labels
+      ctx.fillStyle = '#1e40af';
+      ctx.font = 'bold 14px Arial';
+      const labelX = window.x + window.width / 2;
+      const labelY = window.y + window.height / 2 + 5;
+      ctx.fillText(window.id.replace('_', ' ').toUpperCase(), labelX, labelY);
+    });
+    
+    // Doors
+    doors.forEach((door) => {
+      ctx.fillStyle = '#8b5cf6';
+      ctx.strokeStyle = '#6d28d9';
+      ctx.lineWidth = 3;
+      ctx.fillRect(door.x, door.y, door.width, door.height);
+      ctx.strokeRect(door.x, door.y, door.width, door.height);
+      
+      // Door labels
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px Arial';
+      const labelX = door.x + door.width / 2;
+      const labelY = door.y + door.height / 2 + 6;
+      ctx.fillText('DOOR', labelX, labelY);
+    });
+    
+    // Door name labels
+    ctx.fillStyle = '#6d28d9';
+    ctx.font = 'bold 16px Arial';
+    ctx.fillText('Main Entrance', 810, height - 20);
+    
+    ctx.save();
+    ctx.translate(350, 460);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Executive', 0, 0);
+    ctx.restore();
+    
+    ctx.save();
+    ctx.translate(770, 360);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Conference', 0, 0);
+    ctx.restore();
+    
+    ctx.save();
+    ctx.translate(1160, 460);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Server Room', 0, 0);
+    ctx.restore();
+    
+    ctx.save();
+    ctx.translate(30, 850);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Emergency', 0, 0);
+    ctx.restore();
+    
+    ctx.save();
+    ctx.translate(1540, 490);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Side Exit', 0, 0);
+    ctx.restore();
+    
+    // Window labels
+    ctx.fillStyle = '#1e40af';
+    ctx.font = 'bold 12px Arial';
+    ctx.fillText('WINDOW 1', 125, 190);
+    ctx.fillText('WINDOW 2', 1475, 190);
+    ctx.fillText('WINDOW 3', 590, 40);
+    ctx.fillText('WINDOW 4', 990, 40);
+    ctx.fillText('WINDOW 5', 125, 690);
+    ctx.fillText('WINDOW 6', 1475, 690);
+    ctx.fillText('WINDOW 7', 290, 40);
+    ctx.fillText('WINDOW 8', 1290, 40);
+    
+  }, [config]);
 
   return (
     <div className="relative bg-slate-100 rounded-xl overflow-hidden shadow-2xl">
-      <svg width={width} height={height} className="block">
-        {/* Building outline */}
-        <rect
-          x="50"
-          y="50"
-          width={width - 100}
-          height={height - 100}
-          fill="#E2E8F0"
-          stroke="#475569"
-          strokeWidth="4"
-          rx="12"
-          fillOpacity="0.8"
-        />
-
-        {/* Internal walls creating rooms */}
-        {/* Horizontal dividing walls */}
-        <line x1="50" y1="300" x2="280" y2="300" stroke="#64748B" strokeWidth="4"/>
-        <line x1="320" y1="300" x2="880" y2="300" stroke="#64748B" strokeWidth="4"/>
-        <line x1="920" y1="300" x2={width - 50} y2="300" stroke="#64748B" strokeWidth="4"/>
-        
-        <line x1="50" y1="450" x2={width - 50} y2="450" stroke="#64748B" strokeWidth="4"/>
-        
-        {/* Vertical dividing walls */}
-        <line x1="300" y1="50" x2="300" y2="300" stroke="#64748B" strokeWidth="4"/>
-        <line x1="900" y1="50" x2="900" y2="300" stroke="#64748B" strokeWidth="4"/>
-        <line x1="600" y1="200" x2="600" y2="300" stroke="#64748B" strokeWidth="4"/>
-
-        {/* Bottom wall with main entrance opening */}
-        <line x1="50" y1={height - 50} x2="540" y2={height - 50} stroke="#475569" strokeWidth="4"/>
-        <line x1="670" y1={height - 50} x2={width - 50} y2={height - 50} stroke="#475569" strokeWidth="4"/>
-
-        {/* Room labels */}
-        <text x="175" y="180" className="fill-slate-600 text-lg font-bold" textAnchor="middle">Executive Office</text>
-        <text x="450" y="130" className="fill-slate-600 text-lg font-bold" textAnchor="middle">Reception</text>
-        <text x="750" y="130" className="fill-slate-600 text-lg font-bold" textAnchor="middle">Lobby</text>
-        <text x="1000" y="180" className="fill-slate-600 text-lg font-bold" textAnchor="middle">Server Room</text>
-        <text x="450" y="380" className="fill-slate-600 text-lg font-bold" textAnchor="middle">Conference Room</text>
-        <text x="750" y="380" className="fill-slate-600 text-lg font-bold" textAnchor="middle">Meeting Room</text>
-        <text x="600" y="600" className="fill-slate-600 text-xl font-bold" textAnchor="middle">Main Hall</text>
-
-        {/* Windows */}
-        {windows.map((window) => (
-          <rect
-            key={window.id}
-            x={window.x}
-            y={window.y}
-            width={window.width}
-            height={window.height}
-            fill="#3B82F6"
-            stroke="#1E40AF"
-            strokeWidth="3"
-            rx="4"
-          />
-        ))}
-
-        {/* Doors */}
-        {doors.map((door) => (
-          <g key={door.id}>
-            <rect
-              x={door.x}
-              y={door.y}
-              width={door.width}
-              height={door.height}
-              fill="#8B5CF6"
-              stroke="#6D28D9"
-              strokeWidth="3"
-              rx="6"
-            />
-            <text
-              x={door.x + door.width/2}
-              y={door.y + door.height/2 + 6}
-              className="fill-white text-sm font-bold"
-              textAnchor="middle"
-            >
-              DOOR
-            </text>
-          </g>
-        ))}
-
-        {/* Door labels */}
-        <text x="600" y={height - 15} className="fill-purple-700 text-sm font-bold" textAnchor="middle">Main Entrance</text>
-        <text x="260" y="340" className="fill-purple-700 text-sm font-bold" textAnchor="middle" transform="rotate(-90 260 340)">Executive</text>
-        <text x="570" y="240" className="fill-purple-700 text-sm font-bold" textAnchor="middle" transform="rotate(-90 570 240)">Conference</text>
-        <text x="870" y="340" className="fill-purple-700 text-sm font-bold" textAnchor="middle" transform="rotate(-90 870 340)">Server Room</text>
-        <text x="30" y="640" className="fill-purple-700 text-sm font-bold" textAnchor="middle" transform="rotate(-90 30 640)">Emergency</text>
-
-        {/* Window labels */}
-        <text x="110" y="140" className="fill-blue-700 text-xs font-semibold" textAnchor="middle">Window 1</text>
-        <text x="1090" y="140" className="fill-blue-700 text-xs font-semibold" textAnchor="middle">Window 2</text>
-        <text x="440" y="40" className="fill-blue-700 text-xs font-semibold" textAnchor="middle">Window 3</text>
-        <text x="740" y="40" className="fill-blue-700 text-xs font-semibold" textAnchor="middle">Window 4</text>
-        <text x="110" y="490" className="fill-blue-700 text-xs font-semibold" textAnchor="middle">Window 5</text>
-        <text x="1090" y="490" className="fill-blue-700 text-xs font-semibold" textAnchor="middle">Window 6</text>
-      </svg>
+      <canvas
+        ref={canvasRef}
+        className="block w-full h-auto"
+        style={{ maxWidth: '100%', height: 'auto' }}
+      />
 
       {/* Drop zones overlay */}
       {[...windows, ...doors].map((location) => (
