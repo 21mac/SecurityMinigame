@@ -137,33 +137,3 @@ const BuildingMap = ({
 };
 
 export default BuildingMap;
-
-      {/* Drop zones overlay */}
-      {[...windows, ...doors].map((location) => (
-        <DropZone
-          key={location.id}
-          location={location}
-          placedDevices={placedDevices[location.id] || []}
-          showDropZone={showDropZones}
-          draggedDevice={draggedDevice}
-          onDrop={onDrop}
-          onRemoveDevice={onRemoveDevice}
-        />
-      ))}
-
-      {/* Legend */}
-      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 text-xs space-y-2">
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-blue-500 rounded"></div>
-          <span className="text-slate-700">Windows</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-purple-500 rounded"></div>
-          <span className="text-slate-700">Doors</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default BuildingMap;
