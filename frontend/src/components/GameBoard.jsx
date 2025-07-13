@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BUILDING_CONFIG, SECURITY_DEVICES, MISSIONS } from '../data/mock';
+import { generateRandomBuilding, SECURITY_DEVICES, MISSIONS } from '../data/mock';
 import DeviceInventory from './DeviceInventory';
 import DropZone from './DropZone';
 import BuildingMap from './BuildingMap';
@@ -7,6 +7,7 @@ import MissionSystem from './MissionSystem';
 import { useToast } from '../hooks/use-toast';
 
 const GameBoard = () => {
+  const [buildingConfig, setBuildingConfig] = useState(generateRandomBuilding());
   const [draggedDevice, setDraggedDevice] = useState(null);
   const [placedDevices, setPlacedDevices] = useState({});
   const [currentMission, setCurrentMission] = useState(null);
@@ -32,7 +33,7 @@ const GameBoard = () => {
   const handleDrop = (locationId) => {
     if (!draggedDevice) return;
 
-    const location = [...BUILDING_CONFIG.windows, ...BUILDING_CONFIG.doors]
+    const location = [...buildingConfig.windows, ...buildingConfig.doors]
       .find(loc => loc.id === locationId);
     
     if (!location?.allowedDevices.includes(draggedDevice.id)) {
@@ -108,7 +109,12 @@ const GameBoard = () => {
   };
 
   const handleMissionSelect = (mission) => {
+    // Generate new random building layout for each mission
+    const newBuilding = generateRandomBuilding();
+    setBuildingConfig(newBuilding);
+    
     setCurrentMission(mission);
+    
     // Reset inventory based on mission requirements or use default
     const missionInventory = { ...SECURITY_DEVICES.reduce((acc, device) => {
       acc[device.id] = device.count;
@@ -120,7 +126,7 @@ const GameBoard = () => {
     
     toast({
       title: "Mission Started",
-      description: `${mission.title} - ${mission.difficulty} difficulty`,
+      description: `${mission.title} - ${mission.difficulty} difficulty. New building layout generated!`,
     });
   };
 
@@ -132,7 +138,15 @@ const GameBoard = () => {
     });
     
     if (success) {
-      // Could add rewards, points, etc.
+      // Show success message for longer
+      setTimeout(() => {
+        toast({
+          title: "🎉 Well Done!",
+          description: "Returning to mission selection...",
+        });
+      }, 1000);
+
+      // Return to mission selection after success
       setTimeout(() => {
         setCurrentMission(null);
         setPlacedDevices({});
@@ -140,7 +154,20 @@ const GameBoard = () => {
           acc[device.id] = device.count;
           return acc;
         }, {}));
+        // Generate new building for next mission selection
+        setBuildingConfig(generateRandomBuilding());
       }, 3000);
+    } else {
+      // For failed missions, also return to selection after a delay
+      setTimeout(() => {
+        setCurrentMission(null);
+        setPlacedDevices({});
+        setDeviceInventory(SECURITY_DEVICES.reduce((acc, device) => {
+          acc[device.id] = device.count;
+          return acc;
+        }, {}));
+        setBuildingConfig(generateRandomBuilding());
+      }, 2000);
     }
   };
 
@@ -155,7 +182,7 @@ const GameBoard = () => {
     let missingDevices = [];
 
     // Simple check - at least one device per door
-    BUILDING_CONFIG.doors.forEach(door => {
+    buildingConfig.doors.forEach(door => {
       const placedAtLocation = placedDevices[door.id] || [];
       if (placedAtLocation.length === 0) {
         isComplete = false;
@@ -191,6 +218,9 @@ const GameBoard = () => {
               : "Drag and drop security devices onto windows and doors to secure the building"
             }
           </p>
+          <p className="text-slate-400 text-sm mt-1">
+            Building: {buildingConfig.name} | {buildingConfig.windows.length} Windows, {buildingConfig.doors.length} Doors
+          </p>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
@@ -198,7 +228,7 @@ const GameBoard = () => {
           <div className="xl:col-span-9">
             <div className="bg-white/5 backdrop-blur-sm rounded-xl p-1 border border-white/10 overflow-auto">
               <BuildingMap 
-                config={BUILDING_CONFIG}
+                config={buildingConfig}
                 placedDevices={placedDevices}
                 showDropZones={showDropZones}
                 draggedDevice={draggedDevice}
@@ -235,6 +265,13 @@ const GameBoard = () => {
                   className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   Validate Setup
+                </button>
+                
+                <button
+                  onClick={() => setBuildingConfig(generateRandomBuilding())}
+                  className="w-full mt-3 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  🎲 Generate New Building
                 </button>
               </div>
             )}
