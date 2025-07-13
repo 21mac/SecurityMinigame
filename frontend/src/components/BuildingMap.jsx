@@ -68,7 +68,7 @@ const BuildingMap = ({
           />
         ))}
 
-        {/* Doors - make them more prominent */}
+        {/* Doors */}
         {doors.map((door) => (
           <g key={door.id}>
             <rect
