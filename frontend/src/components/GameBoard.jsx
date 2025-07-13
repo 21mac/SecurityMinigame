@@ -193,10 +193,10 @@ const GameBoard = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-6 gap-6">
-          {/* Main Game Area - Larger */}
-          <div className="xl:col-span-4">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          {/* Main Game Area - Much Larger */}
+          <div className="xl:col-span-9">
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-2 border border-white/10">
               <BuildingMap 
                 config={BUILDING_CONFIG}
                 placedDevices={placedDevices}
@@ -209,7 +209,7 @@ const GameBoard = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="xl:col-span-2 space-y-6">
+          <div className="xl:col-span-3 space-y-4">
             {/* Mission System */}
             <MissionSystem
               currentMission={currentMission}
