@@ -4,99 +4,123 @@ export const BUILDING_CONFIG = {
   id: "sample_building_1",
   name: "Corporate Office Building - Floor 1",
   dimensions: {
-    width: 1200,
-    height: 800
+    width: 1600,
+    height: 1000
   },
   windows: [
     {
       id: "window_1",
       x: 50,
-      y: 150,
-      width: 120,
-      height: 20,
+      y: 200,
+      width: 150,
+      height: 30,
       allowedDevices: ["security_camera", "motion_sensor"]
     },
     {
       id: "window_2", 
-      x: 1030,
-      y: 150,
-      width: 120,
-      height: 20,
+      x: 1400,
+      y: 200,
+      width: 150,
+      height: 30,
       allowedDevices: ["security_camera", "motion_sensor"]
     },
     {
       id: "window_3",
-      x: 450,
+      x: 600,
       y: 50,
-      width: 20,
-      height: 120,
+      width: 30,
+      height: 150,
       allowedDevices: ["security_camera", "motion_sensor"]
     },
     {
       id: "window_4",
-      x: 750,
+      x: 1000,
       y: 50,
-      width: 20,
-      height: 120,
+      width: 30,
+      height: 150,
       allowedDevices: ["security_camera", "motion_sensor"]
     },
     {
       id: "window_5",
       x: 50,
-      y: 500,
-      width: 120,
-      height: 20,
+      y: 700,
+      width: 150,
+      height: 30,
       allowedDevices: ["security_camera", "motion_sensor"]
     },
     {
       id: "window_6",
-      x: 1030,
-      y: 500,
-      width: 120,
-      height: 20,
+      x: 1400,
+      y: 700,
+      width: 150,
+      height: 30,
+      allowedDevices: ["security_camera", "motion_sensor"]
+    },
+    {
+      id: "window_7",
+      x: 300,
+      y: 50,
+      width: 30,
+      height: 150,
+      allowedDevices: ["security_camera", "motion_sensor"]
+    },
+    {
+      id: "window_8",
+      x: 1270,
+      y: 50,
+      width: 30,
+      height: 150,
       allowedDevices: ["security_camera", "motion_sensor"]
     }
   ],
   doors: [
     {
       id: "main_entrance",
-      x: 550,
-      y: 750,
-      width: 100,
-      height: 25,
+      x: 750,
+      y: 950,
+      width: 120,
+      height: 30,
       allowedDevices: ["door_lock", "fingerprint_sensor", "facial_recognition", "security_camera"]
     },
     {
       id: "executive_door",
-      x: 285,
-      y: 320,
-      width: 25,
-      height: 60,
+      x: 380,
+      y: 420,
+      width: 30,
+      height: 80,
       allowedDevices: ["door_lock", "fingerprint_sensor", "facial_recognition"]
     },
     {
       id: "conference_door",
-      x: 590,
-      y: 250,
-      width: 25,
-      height: 60,
+      x: 790,
+      y: 320,
+      width: 30,
+      height: 80,
       allowedDevices: ["door_lock", "fingerprint_sensor", "facial_recognition"]
     },
     {
       id: "server_room_door",
-      x: 890,
-      y: 320,
-      width: 25,
-      height: 60,
+      x: 1190,
+      y: 420,
+      width: 30,
+      height: 80,
       allowedDevices: ["door_lock", "fingerprint_sensor", "facial_recognition", "security_camera"]
     },
     {
       id: "emergency_exit",
       x: 50,
-      y: 600,
-      width: 25,
-      height: 80,
+      y: 800,
+      width: 30,
+      height: 100,
       allowedDevices: ["door_lock", "motion_sensor", "security_camera"]
+    },
+    {
+      id: "side_entrance",
+      x: 1520,
+      y: 450,
+      width: 30,
+      height: 80,
+      allowedDevices: ["door_lock", "security_camera"]
     }
   ]
 };
